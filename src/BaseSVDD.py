@@ -16,6 +16,11 @@ from sklearn.base import BaseEstimator, OutlierMixin
 from sklearn.metrics import accuracy_score
 from sklearn.metrics.pairwise import pairwise_kernels
 from sklearn.model_selection import train_test_split
+import matplotlib.pyplot as plt
+
+import matplotlib.animation as animation
+global fig
+fig = plt.figure(figsize=(6, 6))
 class BaseSVDD(BaseEstimator, OutlierMixin):
     """One-Classification using Support Vector Data Description (SVDD).
 
@@ -57,7 +62,8 @@ class BaseSVDD(BaseEstimator, OutlierMixin):
                  gamma=None,
                  coef0=1,
                  display='on',
-                 n_jobs=None):
+                 n_jobs=None,
+                 type=0):
 
         self.C = C
         self.kernel = kernel
@@ -89,7 +95,7 @@ class BaseSVDD(BaseEstimator, OutlierMixin):
         self.running_time = None
         self.boundary_indices = None
         self.classes_ = None
-   
+        self.type = type
     @property 
     def n_samples(self):
         return self.X.shape[0]
@@ -501,6 +507,8 @@ class BaseSVDD(BaseEstimator, OutlierMixin):
         ax.yaxis.grid()
         plt.show()
 
+
+
     def plot_boundary(self, X, y=None, expand_ratio=0.2, n_grids=50, 
                       color_map='RdYlBu', n_level=6):
         """ 
@@ -509,9 +517,13 @@ class BaseSVDD(BaseEstimator, OutlierMixin):
         Plot the boundary
         --------------------------------------------------------------- 
         
-        """ 
-        start_time = time.time()  
+        """
+
+        start_time = time.time()
+
         dim = X.shape[1]
+
+        plt.clf()
         if dim != 2:
             raise SyntaxError('Visualization of decision boundary only supports for 2D data')
         x_range = np.zeros(shape=(n_grids, 2))
@@ -531,73 +543,102 @@ class BaseSVDD(BaseEstimator, OutlierMixin):
         end_time = time.time()
         print('Calculation of the grid scores is completed. Time cost %.4f seconds\n' % (end_time-start_time))
 
-        fig = plt.figure(figsize=(20, 6))
-        
+        #fig = plt.figure(figsize=(20, 6))
+
+        ax3 = fig.add_subplot(111)
+        if self.type==1:
+            plt.close()
+
+
+            img = plt.imread('../examples/aaaaa.png')
+
+            fig1 = plt.figure(figsize=(12,6))
+            ax3 = fig1.add_subplot(1, 2, 1)
+            plt.title("best")
+            #figpath= '../examples/aaaaa.png'
+            #axes = fig1.add_axes([0, 0, 1, 1])
+            axes = fig1.add_subplot(1,2,2)
+            plt.title("last in forerach")
+            axes.set_axis_off()
+            axes.imshow(img)
+            #plt.savefig(figpath, bbox_inches='tight')
+
         # figure 1: the 3D contour
-        ax1 = fig.add_subplot(1, 3, 1, projection='3d') 
-        ax1.plot_surface(xv, yv, distance, cmap=color_map)
-        ax1.contourf(xv, yv, distance.A, n_level, zdir='z', offset=np.min(distance)*0.9, cmap=color_map)
-        ax1.set_zlim(np.min(distance)*0.9, np.max(distance)*1.05)
+        # ax1 = fig.add_subplot(1, 3, 1, projection='3d')
+        # ax1.plot_surface(xv, yv, distance, cmap=color_map)
+        # ax1.contourf(xv, yv, distance.A, n_level, zdir='z', offset=np.min(distance)*0.9, cmap=color_map)
+        # ax1.set_zlim(np.min(distance)*0.9, np.max(distance)*1.05)
 
         # figure 2: the 2D contour
-        ax2 = fig.add_subplot(1, 3, 2)    
-        ctf1 = ax2.contourf(xv, yv, distance, n_level, alpha=0.8, cmap=color_map)
-        ctf2 = ax2.contour(xv, yv, distance, n_level, colors='black', linewidths=1)
-        plt.clabel(ctf2, inline=True)
-        plt.colorbar(ctf1)
+        #ax2 = fig.add_subplot(1, 2, 1)
+        # ctf1 = ax2.contourf(xv, yv, distance, n_level, alpha=0.8, cmap=color_map)
+        # ctf2 = ax2.contour(xv, yv, distance, n_level, colors='black', linewidths=1)
+        # plt.clabel(ctf2, inline=True)
+        # plt.colorbar(ctf1)
 
         # figure 3: the 2D contour and data
-        ax3 = fig.add_subplot(1, 3, 3)
+        #ax3 = fig.add_subplot(1, 2, 2)
+        #ax3 = fig.add_subplot(111)
         _, y, _, _ = self._check_X_y(X, y) 
         tmp_1 = y == 1
         tmp_2 = y == -1
         positive_indices = tmp_1[:, 0]
         negative_indices = tmp_2[:, 0]
 
-        if self.y_type == 'single':
 
-            ax3.scatter(X[:, 0], 
-                        X[:, 1],
-                        facecolor='C0', marker='o', s=100, linewidths=2,
-                        edgecolor='black', zorder=2)
 
-            ax3.scatter(X[self.support_vector_indices, 0],
-                        X[self.support_vector_indices, 1],
-                        facecolor='C2', marker='o', s=144, linewidths=2,
-                        edgecolor='black', zorder=2)
-        
-            ax3.contour(xv, yv, distance, levels=[self.radius],
-                        colors='C3', linewidths=7, zorder=1)
-            
-            ax3.legend(["Data", "Support vectors"], 
-                      ncol=1, loc='upper left', edgecolor='black',
-                      markerscale=1.2, fancybox=True) 
-                
-        else:
-            ax3.scatter(X[positive_indices, 0], 
-                        X[positive_indices, 1],
-                        facecolor='C0', marker='o', s=100, linewidths=2,
-                        edgecolor='black', zorder=2)
-            
-            ax3.scatter(X[negative_indices, 0], 
-                        X[negative_indices, 1],
-                        facecolor='C4', marker='s', s =100, linewidths=2,
-                        edgecolor='black', zorder=2)
-        
-            ax3.scatter(X[self.support_vector_indices, 0],
-                        X[self.support_vector_indices, 1],
-                        facecolor='C2', marker='o', s=144, linewidths=2,
-                        edgecolor='black', zorder=2)
-            
-            ax3.contour(xv, yv, distance, levels=[self.radius],
-                        colors='C3', linewidths=7, zorder=1)
-            
-            ax3.legend(["Data (+)", "Data (-)", "Support vectors"], 
-                      ncol=1, loc='upper left', edgecolor='black',
-                      markerscale=1.2, fancybox=True) 
+        # if self.y_type == 'single':
 
-        plt.grid()
-        plt.show()
+        ax3.scatter(X[:, 0],
+                    X[:, 1],
+                    facecolor='C0', marker='o', s=100, linewidths=2,
+                    edgecolor='black', zorder=2)
+
+        ax3.scatter(X[self.support_vector_indices, 0],
+                    X[self.support_vector_indices, 1],
+                    facecolor='C2', marker='o', s=144, linewidths=2,
+                    edgecolor='black', zorder=2)
+
+        ax3.contour(xv, yv, distance, levels=[self.radius],
+                    colors='C3', linewidths=7, zorder=1)
+
+        ax3.legend(["Data", "Support vectors"],
+                  ncol=1, loc='upper left', edgecolor='black',
+                  markerscale=1.2, fancybox=True)
+
+        #plt.figure()
+
+        plt.pause(0.001)
+
+
+        # else:
+        #     ax3.scatter(X[positive_indices, 0],
+        #                 X[positive_indices, 1],
+        #                 facecolor='C0', marker='o', s=100, linewidths=2,
+        #                 edgecolor='black', zorder=2)
+        #
+        #     ax3.scatter(X[negative_indices, 0],
+        #                 X[negative_indices, 1],
+        #                 facecolor='C4', marker='s', s =100, linewidths=2,
+        #                 edgecolor='black', zorder=2)
+        #
+        #     ax3.scatter(X[self.support_vector_indices, 0],
+        #                 X[self.support_vector_indices, 1],
+        #                 facecolor='C2', marker='o', s=144, linewidths=2,
+        #                 edgecolor='black', zorder=2)
+        #
+        #     ax3.contour(xv, yv, distance, levels=[self.radius],
+        #                 colors='C3', linewidths=7, zorder=1)
+        #
+        #     ax3.legend(["Data (+)", "Data (-)", "Support vectors"],
+        #               ncol=1, loc='upper left', edgecolor='black',
+        #               markerscale=1.2, fancybox=True)
+
+
+
+
+
+
     
 class BananaDataset():
     """
