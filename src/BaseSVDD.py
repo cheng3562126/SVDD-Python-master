@@ -20,7 +20,7 @@ import matplotlib.pyplot as plt
 
 import matplotlib.animation as animation
 global fig
-fig = plt.figure(figsize=(6, 6))
+fig = plt.figure(figsize=(20, 6))
 class BaseSVDD(BaseEstimator, OutlierMixin):
     """One-Classification using Support Vector Data Description (SVDD).
 
@@ -545,36 +545,40 @@ class BaseSVDD(BaseEstimator, OutlierMixin):
 
         #fig = plt.figure(figsize=(20, 6))
 
-        ax3 = fig.add_subplot(111)
+        ax3 = fig.add_subplot(1,3,3)
+        ax1 = fig.add_subplot(1, 3, 1, projection='3d')
+        ax2 = fig.add_subplot(1, 3, 2)
         if self.type==1:
             plt.close()
 
 
-            img = plt.imread('../examples/aaaaa.png')
+            img = plt.imread('../examples/last.png')
 
-            fig1 = plt.figure(figsize=(12,6))
-            ax3 = fig1.add_subplot(1, 2, 1)
+            fig1 = plt.figure(figsize=(24,6))
+            ax1 = fig1.add_subplot(1, 4, 1, projection='3d')
+            ax2 = fig1.add_subplot(1, 4, 2)
+            ax3 = fig1.add_subplot(1, 4, 3)
             plt.title("best")
-            #figpath= '../examples/aaaaa.png'
+            #figpath= '../examples/last.png'
             #axes = fig1.add_axes([0, 0, 1, 1])
-            axes = fig1.add_subplot(1,2,2)
+            axes = fig1.add_subplot(1,4,4)
             plt.title("last in forerach")
             axes.set_axis_off()
             axes.imshow(img)
             #plt.savefig(figpath, bbox_inches='tight')
 
-        # figure 1: the 3D contour
-        # ax1 = fig.add_subplot(1, 3, 1, projection='3d')
-        # ax1.plot_surface(xv, yv, distance, cmap=color_map)
-        # ax1.contourf(xv, yv, distance.A, n_level, zdir='z', offset=np.min(distance)*0.9, cmap=color_map)
-        # ax1.set_zlim(np.min(distance)*0.9, np.max(distance)*1.05)
+        #figure 1: the 3D contour
+        #ax1 = fig.add_subplot(1, 3, 1, projection='3d')
+        ax1.plot_surface(xv, yv, distance, cmap=color_map)
+        ax1.contourf(xv, yv, distance.A, n_level, zdir='z', offset=np.min(distance)*0.9, cmap=color_map)
+        ax1.set_zlim(np.min(distance)*0.9, np.max(distance)*1.05)
 
-        # figure 2: the 2D contour
-        #ax2 = fig.add_subplot(1, 2, 1)
-        # ctf1 = ax2.contourf(xv, yv, distance, n_level, alpha=0.8, cmap=color_map)
-        # ctf2 = ax2.contour(xv, yv, distance, n_level, colors='black', linewidths=1)
-        # plt.clabel(ctf2, inline=True)
-        # plt.colorbar(ctf1)
+        #figure 2: the 2D contour
+        #ax2 = fig.add_subplot(1, 3, 2)
+        ctf1 = ax2.contourf(xv, yv, distance, n_level, alpha=0.8, cmap=color_map)
+        ctf2 = ax2.contour(xv, yv, distance, n_level, colors='black', linewidths=1)
+        plt.clabel(ctf2, inline=True)
+        plt.colorbar(ctf1)
 
         # figure 3: the 2D contour and data
         #ax3 = fig.add_subplot(1, 2, 2)
